@@ -1,0 +1,12 @@
+{
+  "name": "ecs-express-mode-sample",
+  "version": "1.0.0",
+  "description": "AWS ECS Express Mode 1시간 특강 실습 코드",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

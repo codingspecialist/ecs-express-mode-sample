@@ -1,0 +1,81 @@
+name: Deploy to ECS
+
+on:
+  push:
+    branches: [main]
+
+env:
+  ECR_REPOSITORY: my-app        # ECR 저장소 이름
+  ECS_CLUSTER: my-cluster       # ECS 클러스터 이름
+  ECS_SERVICE: my-app           # ECS 서비스 이름
+  CONTAINER_NAME: my-app        # Task Definition 안의 컨테이너 이름
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push image
+        id: build
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      # STEP 3(서비스 생성) 전에는 아래 단계들이 자동으로 스킵됩니다
+      - name: Check ECS service exists
+        id: check-service
+        run: |
+          STATUS=$(aws ecs describe-services \
+            --cluster $ECS_CLUSTER --services $ECS_SERVICE \
+            --query 'services[0].status' --output text 2>/dev/null || echo "NONE")
+          if [ "$STATUS" = "ACTIVE" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "::notice::ECS 서비스가 아직 없습니다. STEP 3에서 서비스를 만든 뒤부터 자동 배포됩니다."
+          fi
+
+      - name: Download current task definition
+        if: steps.check-service.outputs.exists == 'true'
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition $ECS_SERVICE \
+            --query taskDefinition > task-definition.json
+
+      - name: Render new task definition
+        if: steps.check-service.outputs.exists == 'true'
+        id: render
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build.outputs.image }}
+
+      - name: Deploy to ECS
+        if: steps.check-service.outputs.exists == 'true'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          wait-for-service-stability: true
