@@ -22,12 +22,79 @@
 
 ## 사전 준비물
 
-- AWS 계정 + IAM 액세스 키 (`aws configure` 완료)
-- Docker Desktop, AWS CLI v2
+- AWS 계정 (없으면 https://aws.amazon.com 에서 가입)
+- Docker Desktop
 - 리전: `ap-northeast-2` (서울)
 
-아래 명령에서 `<ACCOUNT_ID>`는 본인 12자리 AWS 계정 ID로 바꾸세요.
-(`aws sts get-caller-identity --query Account --output text`로 확인)
+> **AWS CLI 설치와 IAM 키 발급은 아래 STEP 0**에서 함께 진행합니다.
+
+---
+
+## STEP 0. AWS CLI 설치 + IAM 액세스 키 발급 (제일 먼저!)
+
+ECS는 명령어(CLI)로 다루므로, **내 PC를 AWS 계정에 연결**하는 작업을 가장 먼저 합니다.
+순서: ① CLI 설치 → ② IAM 키 발급 → ③ 연결(`aws configure`).
+
+### ① AWS CLI 설치
+
+**Windows** — PowerShell에서 명령 한 줄 (Windows 10/11 기본 winget):
+
+```powershell
+winget install Amazon.AWSCLI
+```
+
+> winget이 없거나 실패하면 설치 파일을 직접 받으세요: https://awscli.amazonaws.com/AWSCLIV2.msi
+> **macOS**: `brew install awscli` / **Linux**: 공식 문서 https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+
+설치 후 **새 터미널**을 열어 확인:
+
+```bash
+aws --version      # aws-cli/2.x.x ... 가 나오면 성공
+```
+
+### ② IAM 액세스 키 발급 (AWS 콘솔)
+
+액세스 키 = 내 PC가 AWS에 로그인하는 **아이디(Access Key ID) + 비밀번호(Secret Access Key)** 입니다.
+
+1. AWS 콘솔 로그인 → 상단 검색창에 **IAM** 입력 → 이동
+2. 왼쪽 **사용자(Users)** → **사용자 생성**
+   - 사용자 이름: 예) `ecs-lecture`
+   - **권한 설정** → "직접 정책 연결" → 아래 정책 체크
+     - `AmazonECS_FullAccess`
+     - `AmazonEC2ContainerRegistryFullAccess`
+     - `ElasticLoadBalancingFullAccess`
+     - `IAMFullAccess` (작업 실행 역할 생성에 필요)
+     - `CloudWatchLogsFullAccess`
+   - > 실습 편의상 넓게 줍니다. 빠르게 가려면 `AdministratorAccess` 하나로도 됩니다.
+     > (실무에선 최소 권한이 원칙이지만, 이 강의의 주제는 권한 설계가 아닙니다.)
+3. 생성된 사용자 클릭 → **보안 자격 증명(Security credentials)** 탭
+   → **액세스 키 만들기** → 사용 사례 **CLI(Command Line Interface)** 선택 → 생성
+4. **Access Key ID**와 **Secret Access Key**가 표시됩니다.
+   - ⚠️ Secret은 **이 화면에서만** 보입니다. `.csv 다운로드` 또는 복사해서 안전한 곳에 보관하세요.
+
+### ③ 내 PC를 AWS에 연결
+
+```bash
+aws configure
+```
+
+순서대로 입력:
+
+```
+AWS Access Key ID     : (②에서 받은 Access Key ID)
+AWS Secret Access Key : (②에서 받은 Secret Access Key)
+Default region name   : ap-northeast-2
+Default output format : json
+```
+
+연결이 잘 됐는지 확인 (내 계정 ID가 나오면 성공):
+
+```bash
+aws sts get-caller-identity
+```
+
+> 출력의 `"Account"` 값이 본인 **12자리 계정 ID**입니다.
+> 아래 STEP들에서 `<ACCOUNT_ID>`는 이 값으로 바꾸세요.
 
 ---
 

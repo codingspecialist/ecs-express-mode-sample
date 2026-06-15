@@ -18,6 +18,7 @@ ex01에서 손으로 하던 STEP 2~6이 전부 이 안에 들어 있습니다.
 ## 사전 준비물
 
 - AWS 계정 + IAM 액세스 키 (`aws configure` 완료)
+  — 처음이면 [ex01 STEP 0](../ex01-manual#step-0-aws-cli-설치--iam-액세스-키-발급-제일-먼저)에서 AWS CLI 설치·키 발급
 - Docker Desktop, AWS CLI v2
 - **Terraform** 설치 — https://developer.hashicorp.com/terraform/install
 - 리전: `ap-northeast-2`
