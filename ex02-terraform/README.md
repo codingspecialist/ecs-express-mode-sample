@@ -21,13 +21,19 @@ ex01에서 손으로 하던 STEP 2~6이 전부 이 안에 들어 있습니다.
 - Docker Desktop, AWS CLI v2
 - **Terraform** 설치 — https://developer.hashicorp.com/terraform/install
 - 리전: `ap-northeast-2`
+- **기본 VPC(default VPC)** 가 있어야 합니다. 이 예제는 기본 VPC와 그 서브넷을 사용합니다.
+  (없으면 `terraform apply` 시 `data.aws_vpc.default` 오류 → 콘솔 **VPC → 작업 → 기본 VPC 생성**으로 한 번 만들어 두세요)
 
 ---
 
 ## STEP 1. ECR 저장소 생성 + 이미지 푸시
 
+> 아래 명령은 **`ex02-terraform/` 폴더 안에서** 실행합니다 (이미지 경로가 `../servers` 기준).
 > 이미지 빌드/푸시는 Terraform이 하지 않습니다(이미지는 ECS 밖의 일).
 > ex01 STEP 1과 동일합니다. `<ACCOUNT_ID>`는 본인 계정 ID로 바꾸세요.
+>
+> **ex01을 이미 했다면**: ECR 저장소와 이미지가 이미 있으므로 `create-repository`는
+> "이미 존재" 오류가 납니다. 그냥 건너뛰고 STEP 2로 가면 됩니다.
 
 ```bash
 aws ecr create-repository --repository-name basic-server --region ap-northeast-2

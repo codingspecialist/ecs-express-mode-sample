@@ -33,6 +33,8 @@
 
 ## STEP 1. ECR 저장소 생성 + 이미지 푸시 (CLI)
 
+> 아래 명령은 **`ex01-manual/` 폴더 안에서** 실행합니다 (이미지 경로가 `../servers` 기준).
+
 서버가 2종이므로 **저장소도 2개** 만듭니다.
 
 ```bash
@@ -74,6 +76,11 @@ docker push <ACCOUNT_ID>.dkr.ecr.ap-northeast-2.amazonaws.com/auth-server:latest
    - 컨테이너 이름 `basic-server`, 이미지 URI = STEP 1에서 푸시한 basic-server URI
    - 포트 `8080`
    - (참고) JSON으로 만들고 싶으면 [taskdef/basic-server.json](taskdef/basic-server.json) 사용
+
+   > **실행 역할(ecsTaskExecutionRole) 안내**: 작업 정의에는 ECR pull·로그 권한을 가진
+   > `ecsTaskExecutionRole`이 필요합니다. **콘솔로 만들면 없을 때 자동 생성**되지만,
+   > 위 JSON을 CLI(`aws ecs register-task-definition`)로 등록하려면 이 역할이 **미리 있어야** 합니다.
+   > 없으면: `aws iam create-role` + `AmazonECSTaskExecutionRolePolicy` 연결로 한 번 만들어 두세요.
 2. **클러스터 → 서비스 생성**
    - 작업 정의: `basic-server`
    - **원하는 작업 수: `2`** ← 동일 컨테이너 2개

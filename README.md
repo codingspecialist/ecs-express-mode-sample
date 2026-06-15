@@ -5,9 +5,12 @@
 push 한 번이면 빌드부터 배포, 헬스체크 실패 시 자동 롤백까지 전부 자동으로 동작하는 것을 체험합니다.
 
 ```
-GitHub Repo → GitHub Actions → Amazon ECR → ECS Fargate → ALB + HTTPS
+GitHub Repo → GitHub Actions → Amazon ECR → ECS Fargate → ALB (HTTP)
  (코드 push)   (워크플로)      (이미지 저장)  (컨테이너 실행)  (트래픽 라우팅)
 ```
+
+> HTTPS(443)는 **커스텀 도메인 + 인증서(ACM)** 가 있어야 적용됩니다 — 아래 "다음 단계"의 Route 53 + ACM 참고.
+> 이 실습은 도메인 없이 ALB의 HTTP 주소로 진행합니다.
 
 ## 이 저장소 구성
 
