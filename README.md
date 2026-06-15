@@ -9,6 +9,20 @@ GitHub Repo → GitHub Actions → Amazon ECR → ECS Fargate → ALB + HTTPS
  (코드 push)   (워크플로)      (이미지 저장)  (컨테이너 실행)  (트래픽 라우팅)
 ```
 
+## 이 저장소 구성
+
+| 폴더 | 내용 |
+|---|---|
+| (루트) | **본편** — 단일 서버를 콘솔 + GitHub Actions로 배포 (PPT 6 STEP) |
+| [servers/](servers) | 심화 예제용 앱 2종 — 기본서버 / 인증서버 |
+| [ex01-manual/](ex01-manual) | **심화 ①** — 기본서버 2개 + 인증서버 1개를 **테라폼 없이 직접** 배포 |
+| [ex02-terraform/](ex02-terraform) | **심화 ②** — 같은 구성을 **테라폼으로** 배포 (`terraform apply` 한 줄) |
+
+> 본편(루트)으로 ECS 개념을 잡은 뒤, ex01 → ex02 순서로 진행하면
+> "직접 하면 얼마나 번거로운지"와 "코드로 하면 얼마나 간단한지"를 비교 체험할 수 있습니다.
+
+---
+
 ## 앱 소개 (코드는 몰라도 됩니다)
 
 포트 **8080**에서 동작하는 아주 작은 Node.js 서버입니다.
