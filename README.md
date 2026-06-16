@@ -18,11 +18,12 @@ GitHub Repo → GitHub Actions → Amazon ECR → ECS Fargate → ALB (HTTP)
 |---|---|
 | (루트) | **본편** — 단일 서버를 콘솔 + GitHub Actions로 배포 (PPT 6 STEP) |
 | [servers/](servers) | 심화 예제용 앱 2종 — 기본서버 / 인증서버 |
+| [ex00-local/](ex00-local) | **심화 ⓪** — 배포 전 **로컬에서 먼저 실행·테스트** (Node / Docker) |
 | [ex01-manual/](ex01-manual) | **심화 ①** — 기본서버 2개 + 인증서버 1개를 **테라폼 없이 직접** 배포 |
 | [ex02-terraform/](ex02-terraform) | **심화 ②** — 같은 구성을 **테라폼으로** 배포 (`terraform apply` 한 줄) |
 
-> 본편(루트)으로 ECS 개념을 잡은 뒤, ex01 → ex02 순서로 진행하면
-> "직접 하면 얼마나 번거로운지"와 "코드로 하면 얼마나 간단한지"를 비교 체험할 수 있습니다.
+> 본편(루트)으로 ECS 개념을 잡은 뒤, **ex00 → ex01 → ex02** 순서로 진행하면
+> "로컬에서 먼저 확인 → 직접 배포의 번거로움 → 코드로 한 방"을 단계적으로 체험할 수 있습니다.
 
 ---
 
